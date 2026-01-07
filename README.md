@@ -14,7 +14,7 @@ No complex setups, no databases, no PDF parsing errors. Just write, preview, and
 
 ## 📸 Screenshot
 
-![Application Screenshot](/assets/screenshot.png)
+![Application Screenshot](/assets/main_page.png)
 *(Make sure to include a screenshot of your interface here)*
 
 ## 🚀 Why this project?
