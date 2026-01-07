@@ -1,4 +1,4 @@
-# :page_facing_up: ATS-Friendly Markdown Resume Generator
+# 📄 ATS-Friendly Markdown Resume Generator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue)](https://www.php.net/)
@@ -8,16 +8,16 @@ A lightweight, self-hosted tool to write resumes in **Markdown** and export them
 
 No complex setups, no databases, no PDF parsing errors. Just write, preview, and save.
 
-[**:red_circle: View Live Demo**](http://YOUR-INFINITYFREE-URL-HERE) · [Report Bug](https://github.com/YOUR_USERNAME/REPO_NAME/issues) · [Request Feature](https://github.com/YOUR_USERNAME/REPO_NAME/issues)
+[**View Live Demo**](http://github-pages) · [Report Bug](https://github.com/GuelBandeira/ats-resume-generator/issues) · [Request Feature](https://github.com/GuelBandeira/ats-resume-generator/issues)
 
 ---
 
-## :camera_with_flash: Screenshot
+## 📸 Screenshot
 
-![Application Screenshot](./assets/screenshot.png)
+![Application Screenshot](/assets/screenshot.png)
 *(Make sure to include a screenshot of your interface here)*
 
-## :rocket: Why this project?
+## 🚀 Why this project?
 
 Modern Applicant Tracking Systems (ATS) often struggle with complex PDF layouts, columns, and icons. The safest bet for parsing is a clean, semantic HTML document. 
 
@@ -27,7 +27,7 @@ This tool allows you to:
 3.  **Target Multiple Countries:** Create different versions of your resume for specific markets (e.g., `Resume_Brazil`, `Resume_USA`) identified by flags.
 4.  **ATS Optimization:** The exported HTML is stripped of CSS frameworks (Bootstrap), using only semantic tags (`<h1>`, `<ul>`, `<p>`) and standard system fonts to ensure 100% readability by robots.
 
-## :sparkles: Features
+## ✨ Features
 
 - **Split-Screen Editor:** Markdown input on the left, live HTML preview on the right.
 - **Smart Saving (Ctrl+S):** Instantly saves your work to the server.
@@ -37,14 +37,14 @@ This tool allows you to:
 - **FlagCDN Integration:** Visual indicators for country-specific versions using ISO codes.
 - **Flat-File Storage:** No database required (MySQL/PostgreSQL). Data is stored in local files.
 
-## :tools: Tech Stack
+## 🛠️ Tech Stack
 
 - **Backend:** PHP (Native)
 - **Frontend:** HTML5, Bootstrap 4 (Editor UI only), jQuery
 - **Markdown Parser:** [Marked.js](https://github.com/markedjs/marked)
 - **Icons:** [FlagCDN](https://flagcdn.com/)
 
-## :gear: Installation & Usage
+## ⚙️ Installation & Usage
 
 You can run this project locally without installing complex dependencies like Composer or Node.js. You just need PHP installed.
 
@@ -58,4 +58,4 @@ You can run this project locally without installing complex dependencies like Co
    ```bash
    git clone [https://github.com/YOUR_USERNAME/resume-generator.git](https://github.com/YOUR_USERNAME/resume-generator.git)
    cd resume-generator
-``
+```
