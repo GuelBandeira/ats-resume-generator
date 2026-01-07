@@ -56,4 +56,5 @@ You can run this project locally without installing complex dependencies like Co
 1. **Clone the repository**
    ```bash
    git clone [https://github.com/YOUR_USERNAME/resume-generator.git](https://github.com/YOUR_USERNAME/resume-generator.git)
-   cd resume-generator```
+   cd resume-generator
+   ```
