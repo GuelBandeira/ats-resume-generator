@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume Generator (Demo Version)</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+      body {
+        height: 100vh;
+        overflow: hidden;
+        background-color: #f8f9fa;
+      }
+      .sidebar {
+        height: 100vh;
+        overflow-y: auto;
+        border-right: 1px solid #dee2e6;
+        background: white;
+        padding: 20px;
+      }
+      .editor-container {
+        height: 100vh;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .toolbar {
+        background: #343a40;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .split-view {
+        display: flex;
+        flex: 1;
+        height: 100%;
+      }
+
+      /* Ajuste das Bandeiras */
+      .flag-icon {
+        width: 24px;
+        border-radius: 2px;
+        margin-right: 10px;
+        border: 1px solid #eee;
+      }
+
+      /* Editor */
+      #markdown-input {
+        width: 50%;
+        height: 100%;
+        border: none;
+        padding: 20px;
+        font-family: "Courier New", Courier, monospace;
+        background-color: #2b2b2b;
+        color: #f8f8f2;
+        resize: none;
+        outline: none;
+        font-size: 14px;
+      }
+
+      /* Preview Visual */
+      #html-preview {
+        width: 50%;
+        height: 100%;
+        padding: 40px;
+        overflow-y: auto;
+        background-color: white;
+        border-left: 1px solid #ddd;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #000;
+      }
+      /* Estilos do Preview (Simulando o ATS) */
+      #html-preview h1 {
+        border-bottom: 2px solid #000;
+        text-transform: uppercase;
+        font-size: 22pt;
+        margin: 0 0 10px 0;
+      }
+      #html-preview h2 {
+        border-bottom: 1px solid #ccc;
+        text-transform: uppercase;
+        font-size: 14pt;
+        margin-top: 20px;
+      }
+      #html-preview a {
+        color: black;
+        text-decoration: none;
+      }
+      #html-preview ul {
+        margin-top: 5px;
+        margin-bottom: 15px;
+        padding-left: 20px;
+      }
+
+      .file-item {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .file-item:hover {
+        background-color: #f1f1f1;
+      }
+      .file-item.active {
+        background-color: #e9ecef;
+        border-left: 4px solid #007bff;
+      }
+
+      .badge-session {
+        font-size: 0.7em;
+        opacity: 0.6;
+      }
+
+      #toast {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #28a745;
+        color: #fff;
+        text-align: center;
+        border-radius: 4px;
+        padding: 16px;
+        position: fixed;
+        z-index: 1;
+        right: 30px;
+        bottom: 30px;
+        font-size: 17px;
+      }
+      #toast.show {
+        visibility: visible;
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+      @keyframes fadein {
+        from {
+          bottom: 0;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 0;
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3 sidebar">
+          <h4>ATS Ready Resumes</h4>
+          <p class="text-muted small">
+            <span class="text-danger">This is a demo</span>. Data is stored in
+            your browser's session and will vanish when you close this tab.
+          </p>
+          <hr />
+
+          <div class="form-group">
+            <label>Select Target Country</label>
+            <select class="form-control" id="countrySelect"></select>
+          </div>
+          <button
+            onclick="createNewResume()"
+            class="btn btn-dark btn-block mb-4"
+          >
+            Create New
+          </button>
+
+          <div class="list-group" id="fileList"></div>
+        </div>
+
+        <div class="col-md-9 editor-container">
+          <div class="toolbar">
+            <span id="current-file-label">Select a file to edit...</span>
+            <div>
+              <button
+                class="btn btn-success btn-sm"
+                onclick="saveCurrentFile()"
+              >
+                Save (Ctrl+S)
+              </button>
+              <a
+                id="view-html-btn"
+                href="#"
+                target="_blank"
+                class="btn btn-light text-dark btn-sm border"
+                style="display: none"
+                >View Clean HTML</a
+              >
+            </div>
+          </div>
+
+          <div class="split-view">
+            <textarea
+              id="markdown-input"
+              placeholder="# Select a file on the left..."
+              disabled
+            ></textarea>
+            <div id="html-preview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast">Saved to Browser Storage!</div>
+
+    <script>
+      // --- DADOS E CONSTANTES ---
+      const countries = {
+        "United States": "us",
+        Brazil: "br",
+        "United Kingdom": "gb",
+        Canada: "ca",
+        Germany: "de",
+        France: "fr",
+        Japan: "jp",
+        China: "cn",
+        India: "in",
+        Australia: "au",
+        Italy: "it",
+        Spain: "es",
+        Portugal: "pt",
+        Russia: "ru",
+        Mexico: "mx",
+      };
+
+      // Template ATS Padrão
+      const atsTemplate = (countryName) => `
+# [YOUR NAME]
+[City, State, Zip Code] | [Phone Number] | [Email Address]
+[LinkedIn Profile URL] | [Portfolio URL]
+
+## PROFESSIONAL SUMMARY
+Results-oriented Professional with experience in software development. Committed to professional growth in **${countryName}**.
+
+## WORK EXPERIENCE
+
+### [Company Name] | [City, State]
+**[Job Title]** | *[Month, Year] – Present*
+* Spearheaded a critical project resulting in 20% efficiency increase.
+* Developed systems using PHP and JavaScript.
+
+## EDUCATION
+
+**[University Name]**
+**[Degree Name]** | *[Year]*
+
+## TECHNICAL SKILLS
+* **Languages:** PHP, JavaScript, SQL
+* **Tools:** Git, Docker
+`;
+
+      // --- ESTADO DA APLICAÇÃO ---
+      let resumes = []; // Array que guarda os currículos na memória
+      let activeResumeId = null;
+
+      // --- INICIALIZAÇÃO ---
+      $(document).ready(function () {
+        // 1. Preencher Select
+        const select = $("#countrySelect");
+        for (const [name, code] of Object.entries(countries)) {
+          select.append(
+            `<option value="${name}" data-code="${code}">${name}</option>`
+          );
+        }
+
+        // 2. Carregar do SessionStorage
+        loadFromStorage();
+        renderList();
+      });
+
+      // --- FUNÇÕES DE LÓGICA ---
+
+      function createNewResume() {
+        const select = document.getElementById("countrySelect");
+        const countryName = select.value;
+        const isoCode = select.options[select.selectedIndex].dataset.code;
+
+        const newResume = {
+          id: Date.now(), // ID único baseado no timestamp
+          countryName: countryName,
+          isoCode: isoCode,
+          content: atsTemplate(countryName),
+        };
+
+        resumes.push(newResume);
+        saveToStorage();
+        renderList();
+        loadFile(newResume.id); // Abre automaticamente
+      }
+
+      function loadFile(id) {
+        const resume = resumes.find((r) => r.id === id);
+        if (!resume) return;
+
+        activeResumeId = id;
+
+        // UI Updates
+        $(".file-item").removeClass("active");
+        $(`#item-${id}`).addClass("active");
+        $("#current-file-label").text(
+          `Editing: Resume_${resume.countryName}.md`
+        );
+        $("#markdown-input").val(resume.content).prop("disabled", false);
+
+        updatePreview();
+        updateDownloadLink();
+      }
+
+      function saveCurrentFile() {
+        if (!activeResumeId) return alert("No file selected!");
+
+        const content = $("#markdown-input").val();
+
+        // Atualiza o objeto no array
+        const index = resumes.findIndex((r) => r.id === activeResumeId);
+        if (index !== -1) {
+          resumes[index].content = content;
+          saveToStorage();
+          showToast();
+          updateDownloadLink(); // Atualiza o Blob do link
+        }
+      }
+
+      // Renderiza a lista lateral
+      function renderList() {
+        const list = $("#fileList");
+        list.empty();
+
+        resumes.forEach((resume) => {
+          const flagUrl = `https://flagcdn.com/w40/${resume.isoCode}.png`;
+          const name =
+            resume.countryName === "United States"
+              ? "Resume"
+              : `Resume_${resume.countryName}`;
+
+          list.append(`
+                <a href="#" id="item-${resume.id}" class="list-group-item list-group-item-action file-item" onclick="loadFile(${resume.id})">
+                    <div>
+                        <img src="${flagUrl}" class="flag-icon" alt="${resume.countryName}">
+                        ${name}
+                    </div>
+                </a>
+            `);
+        });
+      }
+
+      // Atualiza o Preview HTML
+      function updatePreview() {
+        const mdText = $("#markdown-input").val();
+        $("#html-preview").html(marked.parse(mdText));
+      }
+
+      // Gera o Blob (Arquivo Virtual) para Download/Visualização
+      function updateDownloadLink() {
+        if (!activeResumeId) {
+          $("#view-html-btn").hide();
+          return;
+        }
+
+        const resume = resumes.find((r) => r.id === activeResumeId);
+        const htmlBody = marked.parse(resume.content);
+
+        // O HTML Completo com CSS embutido (Igual ao do PHP)
+        const finalHTML = `<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Resume - ${resume.countryName}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #000; margin: 0; padding: 40px; background: #fff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 22pt; text-transform: uppercase; margin-bottom: 5px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+        h2 { font-size: 14pt; text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; border-bottom: 1px solid #ccc; }
+        h3 { font-size: 12pt; font-weight: bold; margin-top: 15px; margin-bottom: 5px; }
+        a { color: #000; text-decoration: none; }
+        ul { margin-top: 5px; margin-bottom: 15px; padding-left: 20px; }
+        li { margin-bottom: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        ${htmlBody}
+    </div>
+</body>
+</html>`;
+
+        const blob = new Blob([finalHTML], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+
+        $("#view-html-btn").attr("href", url).show();
+      }
+
+      // --- UTILS (Storage & Events) ---
+
+      function saveToStorage() {
+        sessionStorage.setItem("demo_resumes", JSON.stringify(resumes));
+      }
+
+      function loadFromStorage() {
+        const stored = sessionStorage.getItem("demo_resumes");
+        if (stored) {
+          resumes = JSON.parse(stored);
+        }
+      }
+
+      function showToast() {
+        const x = document.getElementById("toast");
+        x.className = "show";
+        setTimeout(() => (x.className = x.className.replace("show", "")), 3000);
+      }
+
+      // Event Listeners
+      $("#markdown-input").on("input", updatePreview);
+
+      document.addEventListener("keydown", function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+          e.preventDefault();
+          saveCurrentFile();
+        }
+      });
+    </script>
+  </body>
+</html>
