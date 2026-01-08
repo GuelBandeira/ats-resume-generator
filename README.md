@@ -8,7 +8,7 @@ A lightweight, self-hosted tool to write resumes in **Markdown** and export them
 
 No complex setups, no databases, no PDF parsing errors. Just write, preview, and save.
 
-[**🟢View Live Demo**](http://github-pages) · [Report Bug](https://github.com/GuelBandeira/ats-resume-generator/issues) · [Request Feature](https://github.com/GuelBandeira/ats-resume-generator/issues)
+[**🟢View Live Demo**](https://guelbandeira.github.io/ats-resume-generator/) · [Report Bug](https://github.com/GuelBandeira/ats-resume-generator/issues) · [Request Feature](https://github.com/GuelBandeira/ats-resume-generator/issues)
 
 ---
 
